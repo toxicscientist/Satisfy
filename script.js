@@ -403,9 +403,9 @@ function endGame(reason) {
         sensational = true
     }
     if (sensational == true) {
-        message = `▶️🟰I got ${levels} satisfactions in SATISFY`
+        message = `▶️🟰I got ${levels} satisfactions in SATISFY. https://bit.ly/-SATISFY-`
     } else {
-        message = `▶️🟰I got a time of ${points} seconds in SATISFY`
+        message = `▶️🟰I got a time of ${points} seconds in SATISFY. https://bit.ly/-SATISFY-`
     }
     let encodedMessage = encodeURIComponent(message)
     document.getElementById('container').innerHTML += `<p /> <input id="copy" type='button' style='size:90%' value='🔗Copy'></input> <span style="width: 40px;"></span> <input id="tweet" type='button' style='size:90%' value='❎Tweet'></input>`
