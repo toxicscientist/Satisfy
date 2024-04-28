@@ -447,6 +447,7 @@ function endGame(reason) {
     document.getElementById('operation').innerHTML = reason
     document.getElementById('time').innerHTML = `Highest Time: ${points}`
     document.getElementById('condition').style.color = "red"
+    document.getElementById('condition').style['font-size'] = "120%"
     document.getElementById('condition').style['text-shadow'] = "1px 1px 10px red"
     document.getElementById('path').innerHTML += `](${levels} satisfactions)`
     document.getElementById('tutorial').innerHTML = `<input id="retry" type="button" value="Retry" onclick="location.reload()"></input><p>`
