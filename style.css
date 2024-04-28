@@ -103,3 +103,10 @@ input:focus{
 .celebrate{
     text-shadow: 1px 1px 10px lime
 }
+
+footer{
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    text-align: center;
+}
