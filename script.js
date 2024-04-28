@@ -56,12 +56,6 @@ var conditions =
             test: (n) => {
                 return n.toString().endsWith('20')
             }
-        },
-        {
-            name: "N starts with the digits 20",
-            test: (n) => {
-                return n.toString().startsWith('20')
-            }
         }
     ],
     // Rank 1: till 5th equation
@@ -106,6 +100,12 @@ var conditions =
             name: "Sum of digits in N is greater than 10",
             test: (n) => {
                 return (sumOfDigits(n) > 10)
+            }
+        },
+        {
+            name: "N starts with the digits 20",
+            test: (n) => {
+                return n.toString().startsWith('20')
             }
         }
     ],
@@ -216,6 +216,44 @@ var conditions =
                 return (n > 2024)
             }
         },
+        {
+            name: "N is greater than the number represented by the roman numerals MMMXXIV",
+            test: (n) => {
+                return (n > 3024)
+            }
+        },
+        {
+            name: "N is less than the number represented by the roman numerals MMIV",
+            test: (n) => {
+                return (n < 2004)
+            }
+        },
+        {
+            name: "N contains the current day of the month",
+            test: (n) => {
+                var date = new Date()
+                return (n.toString().includes(date.getDate().toString()))
+            }
+        },
+        {
+            name: "N contains the current hour in the 24 hour system",
+            test: (n) => {
+                var date = new Date()
+                return (n.toString().includes(date.getHours().toString()))
+            }
+        },
+        {
+            name: "The digits of N are in ascending order",
+            test: (n) => {
+                return n.toString().split('').sort().join('') == n.toString()
+            }
+        },
+        {
+            name: "The digits of N are in descending order",
+            test: (n) => {
+                return n.toString().split('').sort().join('') == n.toString().split('').reverse().join('')
+            }
+        },
     ],
     // Rank 4: until 35th
     [
@@ -261,6 +299,13 @@ var conditions =
                 return (n.toString().includes('8'))
             }
         },
+        {
+            name: "N starts with the first 2 digits of the current Unix time",
+            test: (n) => {
+                var date = new Date()
+                return n.toString().startsWith(date.getTime().toString().slice(0, 2))
+            }
+        },
     ],
     // Rank 5
     [
@@ -300,19 +345,26 @@ var conditions =
                 return sequences.pi.includes(sumOfDigits(n).toString())
             }
         },
+        {
+            name: "N starts with the third digit of the current Unix time",
+            test: (n) => {
+                var date = new Date()
+                return n.toString().startsWith(date.getTime().toString().slice(2, 3))
+            }
+        },
     ],
     // Rank 6(100+)
     [
         {
             name: "N is a prime number greater than 1000",
             test: (n) => {
-                return (sequences.prime.includes(n) && n>1000)
+                return ((sequences.prime.includes(n)) && (n > 1000))
             }
         },
         {
             name: "N is a multiple of 17 and 41",
             test: (n) => {
-                return n%(17*41) == 0
+                return (n % (17 * 41) == 0)
             }
         },
         {
@@ -343,6 +395,8 @@ var timerUpdate;
 var bar = 10
 var sensational;
 var message;
+var passSound = new Audio('./pass.mp3')
+var failSound = new Audio('./fail.mp3')
 
 function getHighScore() {
     var highScore = localStorage.getItem("highScore");
@@ -389,23 +443,24 @@ function startGame() {
 
 function endGame(reason) {
     var successfulClear = clearInterval(timerUpdate)
+    failSound.play()
     document.getElementById('operation').innerHTML = reason
     document.getElementById('time').innerHTML = `Highest Time: ${points}`
     document.getElementById('condition').style.color = "red"
     document.getElementById('condition').style['text-shadow'] = "1px 1px 10px red"
     document.getElementById('path').innerHTML += `](${levels} satisfactions)`
-    document.getElementById('tutorial').innerHTML = `<input type="button" value="Retry" onclick="location.reload()"></input>`
+    document.getElementById('tutorial').innerHTML = `<input id="retry" type="button" value="Retry" onclick="location.reload()"></input><p>`
     if(setHighScore(points)){
-        document.getElementById('time').innerHTML += `<span class="celebrate>(NEW HIGHEST TIME)</span>`
+        document.getElementById('time').innerHTML += `<div class="celebrate>(NEW HIGHEST TIME)</div>`
     }
     if(setHighSatisfactions(levels)){
-        document.getElementById('path').innerHTML += `<span class="celebrate">(NEW MOST SATISFACTIONS)</span>`
+        document.getElementById('path').innerHTML += `<div class="celebrate">(NEW MOST SATISFACTIONS)</div>`
         sensational = true
     }
     if (sensational == true) {
-        message = `▶️🟰I got ${levels} satisfactions in SATISFY. https://bit.ly/-SATISFY-`
+        message = `▶️I got ${levels} satisfactions in SATISFY. https://bit.ly/-SATISFY-`
     } else {
-        message = `▶️🟰I got a time of ${points} seconds in SATISFY. https://bit.ly/-SATISFY-`
+        message = `▶️I got a time of ${points} seconds in SATISFY. https://bit.ly/-SATISFY-`
     }
     let encodedMessage = encodeURIComponent(message)
     document.getElementById('container').innerHTML += `<p /> <input id="copy" type='button' style='size:90%' value='🔗Copy'></input> <span style="width: 40px;"></span> <input id="tweet" type='button' style='size:90%' value='❎Tweet'></input>`
@@ -451,6 +506,7 @@ function testAnswer() {
             points = time
         }
         document.getElementById('term').focus();
+        passSound.play()
         manageGame()
     } else {
         if (time > points) {
