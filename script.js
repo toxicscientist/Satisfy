@@ -516,7 +516,8 @@ function testAnswer() {
         endGame(`N(${newNum}) did not satisfy the condition!`)
     }
 }
+var hints = ['Adding a negative number is the same as subtracting', 'Giving a correct value of N just as the timer is about to run out gives extra time', 'Keeping N small prevents you from getting overwhelmed', 'The infinity symbol(∞) resembles a lemniscate', 'Don\'t let the timer scare you, 10 seconds are longer than you think they are', 'Read the conditions carefully']
 
 document.getElementById('current').innerHTML = `<input type="button" value="PLAY" onclick="startGame()"></input>`
-document.getElementById('tutorial').innerHTML = document.getElementById('tutorial').innerHTML.replace('(Hint: ???)', `(Hint: ${['Adding a negative number is the same as subtracting', 'Giving a correct value of N just as the timer is about to run out gives extra time', 'Keeping N small prevents you from getting overwhelmed', 'The infinity symbol(∞) resembles a lemniscate'][rng(0,3)]})`)
+document.getElementById('tutorial').innerHTML = document.getElementById('tutorial').innerHTML.replace('(Hint: ???)', `(Hint: ${hints[rng(0, hints.length)]})`)
 document.getElementById('highscore').innerHTML = `Highest Time: ${getHighScore()}<p>Most Satisfactions: ${getHighSatisfactions()}</p>`
