@@ -47,6 +47,10 @@ p{
     align-items: center;
 }
 
+#current {
+    min-width: 100%;
+}
+
 #path {
     font-family: 'Roboto Mono', monospace;
     font-weight: 300;

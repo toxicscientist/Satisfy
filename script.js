@@ -126,12 +126,6 @@ var conditions =
             }
         },
         {
-            name: "N is a multiple of 6",
-            test: (n) => {
-                return n % 6 == 0
-            }
-        },
-        {
             name: "N is not a perfect square",
             test: (n) => {
                 return !Number.isInteger(Math.sqrt(n))
