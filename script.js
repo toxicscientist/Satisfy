@@ -64,6 +64,10 @@ function toRoman(num) {
     return Array(+digits.join("") + 1).join("M") + roman;
 }
 
+function toRad(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
 async function copy(text) {
     try {
         await navigator.clipboard.writeText(text);
@@ -256,37 +260,37 @@ var conditions =
         {
             name: "The cosine of N is positive",
             test: (n) => {
-                return (Math.cos(n) > 0)
+                return (Math.cos(toRad(n)) > 0)
             }
         },
         {
             name: "The cosine of N is negative",
             test: (n) => {
-                return (Math.cos(n) < 0)
+                return (Math.cos(toRad(n)) < 0)
             }
         },
         {
             name: "The sine of N is positive",
             test: (n) => {
-                return (Math.sin(n) > 0)
+                return (Math.sin(toRad(n)) > 0)
             }
         },
         {
             name: "The sine of N is negative",
             test: (n) => {
-                return (Math.sin(n) < 0)
+                return (Math.sin(toRad(n)) < 0)
             }
         },
         {
             name: "The tangent of N is positive",
             test: (n) => {
-                return (Math.tan(n) > 0)
+                return (Math.tan(toRad(n)) > 0)
             }
         },
         {
             name: "The tangent of N is negative",
             test: (n) => {
-                return (Math.tan(n) < 0)
+                return (Math.tan(toRad(n)) < 0)
             }
         },
     ],
@@ -313,19 +317,19 @@ var conditions =
         {
             name: "The cosine of N is zero",
             test: (n) => {
-                return (Math.cos(n) == 0)
+                return (Math.cos(toRad(n)) == 0)
             }
         },
         {
             name: "The sine of N is zero",
             test: (n) => {
-                return (Math.sin(n) == 0)
+                return (Math.sin(toRad(n)) == 0)
             }
         },
         {
             name: "The tangent of N is zero",
             test: (n) => {
-                return (Math.tan(n) == 0)
+                return (Math.tan(toRad(n)) == 0)
             }
         },
         {
