@@ -10,11 +10,58 @@ function rng(min = 0, max = 1) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
+function seededRng(seed, min = 0, max = 1) {
+    (((+((((Math.cos(seed)) * 100).toString()).slice(5, 8))) / 1000) * max) + min
+}
+
 // from https://www.geeksforgeeks.org/javascript-program-for-sum-of-digits-of-a-number/
 function sumOfDigits(num) {
     return num.toString().split("")
         .reduce((sum, digit) =>
             sum + parseInt(digit), 0);
+}
+
+// adapted from https://www.w3resource.com/javascript-exercises/javascript-math-exercise-105.php
+function toWords(n) {
+    if (n < 0)
+        return false;
+    single_digit = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
+    double_digit = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+    below_hundred = ['Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+    if (n === 0) return 'Zero';
+    function translate(n) {
+        let word = "";
+        if (n < 10) {
+            word = single_digit[n] + ' ';
+        } else if (n < 20) {
+            word = double_digit[n - 10] + ' ';
+        } else if (n < 100) {
+            let rem = translate(n % 10);
+            word = below_hundred[(n - n % 10) / 10 - 2] + ' ' + rem;
+        } else if (n < 1000) {
+            word = single_digit[Math.trunc(n / 100)] + ' Hundred ' + translate(n % 100);
+        } else {
+            word = translate(parseInt(n / 1000)).trim() + ' Thousand ' + translate(n % 1000);
+        }
+        return word;
+    }
+    let result = translate(n);
+    return result.trim();
+}
+
+// from https://stackoverflow.com/a/9083076
+function toRoman(num) {
+    if (isNaN(num))
+        return NaN;
+    var digits = String(+num).split(""),
+        key = ["", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM",
+            "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC",
+            "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"],
+        roman = "",
+        i = 3;
+    while (i--)
+        roman = (key[+digits.pop() + (i * 10)] || "") + roman;
+    return Array(+digits.join("") + 1).join("M") + roman;
 }
 
 async function copy(text) {
@@ -34,32 +81,38 @@ var conditions =
     // Rank 0: till 2nd equations
     [
         {
-            name: "N is even",
+            name: "N starts with the digits 20",
             test: (n) => {
-                return n%2==0
+                return n.toString().startsWith('20')
             }
         },
         {
-            name: "N is odd",
+            name: "N does not contain the number 0",
             test: (n) => {
-                return n%2!=0
+                return !(n.toString().includes('0'))
             }
         },
         {
-            name: "N is greater than 100",
+            name: "N contains the number 0",
             test: (n) => {
-                return n>100
+                return (n.toString().includes('0'))
             }
         },
-        {
-            name: "N ends with the digits 20",
-            test: (n) => {
-                return n.toString().endsWith('20')
-            }
-        }
     ],
     // Rank 1: till 5th equation
     [
+        {
+            name: "N is odd when reversed",
+            test: (n) => {
+                return +(n.toString().split('').reverse().join('')) % 2 != 0
+            }
+        },
+        {
+            name: "N is even when reversed",
+            test: (n) => {
+                return +(n.toString().split('').reverse().join('')) % 2 == 0
+            }
+        },
         {
             name: "N is a multiple of 3",
             test: (n) => {
@@ -85,29 +138,23 @@ var conditions =
             }
         },
         {
-            name: "N does not contain the number 0",
-            test: (n) => {
-                return !(n.toString().includes('0'))
-            }
-        },
-        {
-            name: "N contains the number 0",
-            test: (n) => {
-                return (n.toString().includes('0'))
-            }
-        },
-        {
             name: "Sum of digits in N is greater than 10",
             test: (n) => {
                 return (sumOfDigits(n) > 10)
             }
         },
         {
-            name: "N starts with the digits 20",
+            name: "N, when written in words, starts with 'T'",
             test: (n) => {
-                return n.toString().startsWith('20')
+                return (toWords(n).startsWith('T'))
             }
-        }
+        },
+        {
+            name: "N, when written in words, starts with 'F'",
+            test: (n) => {
+                return (toWords(n).startsWith('F'))
+            }
+        },
     ],
     // Rank 2: till 15th equation
     [
@@ -115,24 +162,6 @@ var conditions =
             name: "N is a perfect square",
             test: (n) => {
                 return Number.isInteger(Math.sqrt(n))
-            }
-        },
-        {
-            name: "N is an even number greater than 1000",
-            test: (n) => {
-                return ((n > 1000) && (n % 2 == 0))
-            }
-        },
-        {
-            name: "N is a multiple of both 2 and 3",
-            test: (n) => {
-                return n % 6 == 0
-            }
-        },
-        {
-            name: "N is a power of 2",
-            test: (n) => {
-                return (n & (n - 1)) == 0
             }
         },
         {
@@ -148,6 +177,12 @@ var conditions =
             }
         },
         {
+            name: "Sum of digits in N is a prime number",
+            test: (n) => {
+                return (sequences.prime.includes(sumOfDigits(n)))
+            }
+        },
+        {
             name: "N starts with the digits 100",
             test: (n) => {
                 return n.toString().startsWith('100')
@@ -159,21 +194,15 @@ var conditions =
                 return (n.toString().includes('6'))
             }
         },
+        {
+            name: "N, when written in Roman numerals, starts with 'M'",
+            test: (n) => {
+                return (toRoman(n).startsWith('M'))
+            }
+        },
     ],
     // Rank 3: till 25th
     [
-        {
-            name: "N is a power of 2 greater than 50",
-            test: (n) => {
-                return ((n & (n - 1)) == 0) && (n > 50)
-            }
-        },
-        {
-            name: "N is prime",
-            test: (n) => {
-                return sequences.prime.includes(n)
-            }
-        },
         {
             name: "N is a multiple of 7",
             test: (n) => {
@@ -181,21 +210,15 @@ var conditions =
             }
         },
         {
-            name: "N is greater than 10000",
+            name: "All digits in N are less than 7",
             test: (n) => {
-                return (n >10000)
+                return n.toString().split('').every((e) => { return +e < 7 })
             }
         },
         {
-            name: "All digits in N are less than 6",
+            name: "All digits in N are more than 3",
             test: (n) => {
-                return n.toString().split('').every((e) => { return +e < 6 })
-            }
-        },
-        {
-            name: "All digits in N are more than 4",
-            test: (n) => {
-                return n.toString().split('').every((e) => { return +e > 4 })
+                return n.toString().split('').every((e) => { return +e > 3 })
             }
         },
         {
@@ -208,24 +231,6 @@ var conditions =
             name: "N's decimal representation must consist entirely of digits that can be found in the binary number system",
             test: (n) => {
                 return n.toString().split('').every((e) => { return +e < 2 })
-            }
-        },
-        {
-            name: "N is greater than the number represented by the roman numerals MMXXIV",
-            test: (n) => {
-                return (n > 2024)
-            }
-        },
-        {
-            name: "N is greater than the number represented by the roman numerals MMMXXIV",
-            test: (n) => {
-                return (n > 3024)
-            }
-        },
-        {
-            name: "N is less than the number represented by the roman numerals MMIV",
-            test: (n) => {
-                return (n < 2004)
             }
         },
         {
@@ -254,31 +259,49 @@ var conditions =
                 return n.toString().split('').sort().join('') == n.toString().split('').reverse().join('')
             }
         },
+        {
+            name: "The cosine of N is positive",
+            test: (n) => {
+                return (Math.cos(n) > 0)
+            }
+        },
+        {
+            name: "The cosine of N is negative",
+            test: (n) => {
+                return (Math.cos(n) < 0)
+            }
+        },
+        {
+            name: "The sine of N is positive",
+            test: (n) => {
+                return (Math.sin(n) > 0)
+            }
+        },
+        {
+            name: "The sine of N is negative",
+            test: (n) => {
+                return (Math.sin(n) < 0)
+            }
+        },
+        {
+            name: "The tangent of N is positive",
+            test: (n) => {
+                return (Math.tan(n) > 0)
+            }
+        },
+        {
+            name: "The tangent of N is negative",
+            test: (n) => {
+                return (Math.tan(n) < 0)
+            }
+        },
     ],
     // Rank 4: until 35th
     [
         {
-            name: "N is a multiple of 6 greater than 500",
-            test: (n) => {
-                return ((n % 6 == 0) && (n > 500))
-            }
-        },
-        {
             name: "N is a palindrome",
             test: (n) => {
                 return n.toString().split('').reverse().join('') === n.toString()
-            }
-        },
-        {
-            name: "N is a power of 2 greater than 500",
-            test: (n) => {
-                return ((n & (n - 1)) == 0) && (n > 500)
-            }
-        },
-        {
-            name: "N is a multiple of 7 greater than 50",
-            test: (n) => {
-                return ((n % 7 == 0) && (n > 50))
             }
         },
         {
@@ -294,16 +317,33 @@ var conditions =
             }
         },
         {
-            name: "N contains a number resembling a lemniscate ",
+            name: "The cosine of N is zero",
             test: (n) => {
-                return (n.toString().includes('8'))
+                return (Math.cos(n) == 0)
             }
         },
         {
-            name: "N starts with the first 2 digits of the current Unix time",
+            name: "The sine of N is zero",
             test: (n) => {
-                var date = new Date()
-                return n.toString().startsWith(date.getTime().toString().slice(0, 2))
+                return (Math.sin(n) == 0)
+            }
+        },
+        {
+            name: "The tangent of N is zero",
+            test: (n) => {
+                return (Math.tan(n) == 0)
+            }
+        },
+        {
+            name: "N, when written in Roman numerals, contains 'MD'",
+            test: (n) => {
+                return (toRoman(n).includes('MD'))
+            }
+        },
+        {
+            name: "N, when written in Roman numerals, contains 'XL'",
+            test: (n) => {
+                return (toRoman(n).includes('XL'))
             }
         },
     ],
@@ -316,9 +356,9 @@ var conditions =
             }
         },
         {
-            name: "N is a perfect cube greater than 100",
+            name: "N is a perfect cube",
             test: (n) => {
-                return Number.isInteger(Math.cbrt(n)) && (n > 100)
+                return Number.isInteger(Math.cbrt(n))
             }
         },
         {
@@ -328,15 +368,15 @@ var conditions =
             }
         },
         {
-            name: "N is a multiple of 3 greater than 10000",
+            name: "N is a multiple of 3",
             test: (n) => {
-                return ((n % 3 == 0) && (n > 10000))
+                return (n % 3 == 0)
             }
         },
         {
-            name: "N is a multiple of 7 greater than 200",
+            name: "N is a multiple of 7",
             test: (n) => {
-                return ((n % 7 == 0) && (n > 200))
+                return ((n % 7 == 0))
             }
         },
         {
@@ -345,22 +385,9 @@ var conditions =
                 return sequences.pi.includes(sumOfDigits(n).toString())
             }
         },
-        {
-            name: "N starts with the third digit of the current Unix time",
-            test: (n) => {
-                var date = new Date()
-                return n.toString().startsWith(date.getTime().toString().slice(2, 3))
-            }
-        },
     ],
     // Rank 6(100+)
     [
-        {
-            name: "N is a prime number greater than 1000",
-            test: (n) => {
-                return ((sequences.prime.includes(n)) && (n > 1000))
-            }
-        },
         {
             name: "N is a multiple of 17 and 41",
             test: (n) => {
@@ -375,41 +402,121 @@ var conditions =
         },
     ]
 ]
+var additions = [
+    {
+        name: "N is even",
+        test: (n) => {
+            return (n % 2 == 0)
+        }
+    },
+    {
+        name: "N is odd",
+        test: (n) => {
+            return (n % 2 != 0)
+        }
+    },
+    {
+        name: "N is greater than 100",
+        test: (n) => {
+            return (n > 100)
+        }
+    },
+    {
+        name: "N is greater than 1000",
+        test: (n) => {
+            return (n > 1000)
+        }
+    },
+    {
+        name: "N is greater than the number represented by the roman numerals MMXXIV",
+        test: (n) => {
+            return (n > 2024)
+        }
+    },
+    {
+        name: "N is greater than the number represented by the roman numerals MMMXXIV",
+        test: (n) => {
+            return (n > 3024)
+        }
+    },
+    {
+        name: "N is less than the number represented by the roman numerals MMIV",
+        test: (n) => {
+            return (n < 2004)
+        }
+    },
+    {
+        name: "All digits in N are less than 6",
+        test: (n) => {
+            return n.toString().split('').every((e) => { return +e < 6 })
+        }
+    },
+    {
+        name: "All digits in N are more than 4",
+        test: (n) => {
+            return n.toString().split('').every((e) => { return +e > 4 })
+        }
+    },
+    {
+        name: "N is greater than 10000",
+        test: (n) => {
+            return (n > 10000)
+        }
+    },
+    {
+        name: "Sum of digits in N is greater than 8",
+        test: (n) => {
+            return (sumOfDigits(n) > 8)
+        }
+    },
+    {
+        name: "Sum of digits in N is less than 25",
+        test: (n) => {
+            return (sumOfDigits(n) < 25)
+        }
+    },
+    {
+        name: "N, when written in words, does not end with 'E'",
+        test: (n) => {
+            return (!toWords(n).endsWith('e'))
+        }
+    },
+    {
+        name: "N, when written in Roman numerals, ends with 'V'",
+        test: (n) => {
+            return (toRoman(n).endsWith('V'))
+        }
+    },
+]
 
 function updateTime(){
     document.getElementById('time').innerHTML = time
-    !gameOver ? time -= 1 : time = time;
-    if (time < 1 && !gameOver) {
-        endGame('Times up!')
+    if (!gameOver){
+        time -= 1
+        if (time < 1 && !gameOver) {
+            endGame('Times up!')
+        }
     }
 }
 
 var time;
 var number;
 var condition; // = conditions[rng(undefined, conditions.length)]
+var addition;
 var gameOver = false;
 var levels = 0;
 var rank = 0;
 var points = 0;
 var timerUpdate;
-var bar = 10
-var sensational;
 var message;
+
+const root = document.querySelector(':root');
+switchColours()
+switchColours()
+
 var passSound = new Audio('./pass.mp3')
 var failSound = new Audio('./fail.mp3')
 
-function getHighScore() {
-    var highScore = localStorage.getItem("highScore");
-    return highScore || 0
-}
-function setHighScore(score) {
-    var highScore = getHighScore()
-    if(score > highScore){
-        highScore = score;
-        localStorage.setItem("highScore", highScore);
-        return true;
-    }
-}
 function getHighSatisfactions() {
     var highScore = localStorage.getItem("highSatisfactions");
     return highScore || 0
@@ -423,12 +530,31 @@ function setHighSatisfactions(score) {
     }
 }
 
+function switchColours() {
+    if (localStorage.getItem('darkmode') == 'false'){
+        root.style.setProperty('--text', '#333');
+        root.style.setProperty('--bg', '#fffae9');
+        root.style.setProperty('--high-contrast-text', '#000');
+        root.style.setProperty('--alt-bg', '#0000003a');
+        localStorage.setItem('darkmode', 'true')
+        if(document.getElementById('darkmode')){document.getElementById('darkmode').value = "🌙"}
+    }
+    else{
+        root.style.setProperty('--text', '#ddd');
+        root.style.setProperty('--bg', '#20252c');
+        root.style.setProperty('--high-contrast-text', '#fff');
+        root.style.setProperty('--alt-bg', '#ffffff3a');
+        localStorage.setItem('darkmode', 'false')
+        if(document.getElementById('darkmode')){document.getElementById('darkmode').value = "🔆"}
+    }
+}
+
 function startGame() {
     number = rng(10, 100)
     document.getElementById('tutorial').innerHTML = ''
     document.getElementById('current').innerHTML = number
     document.getElementById('operation').innerHTML = `<input id="term" type="number"></input>`
-    document.getElementById('path').style.border = `3px #333 solid`
+    document.getElementById('path').style.border = `3px var(--text) solid`
     document.getElementById('path').innerHTML = '[' + number
     document.getElementById('term').addEventListener('keydown', (e) => {
         if(e.key == "Enter"){
@@ -446,23 +572,21 @@ function endGame(reason) {
     failSound.play()
     document.getElementById('operation').innerHTML = reason
     document.getElementById('time').innerHTML = `Highest Time: ${points}`
-    document.getElementById('condition').style.color = "red"
-    document.getElementById('condition').style['font-size'] = "120%"
-    document.getElementById('condition').style['text-shadow'] = "1px 1px 10px red"
+    if(reason.includes("condition")){
+        document.getElementById('condition').style.color = "red"
+        document.getElementById('condition').style['font-size'] = "120%"
+        document.getElementById('condition').style['text-shadow'] = "1px 1px 8px red"
+    } else {
+        document.getElementById('operation').style.color = "red"
+        document.getElementById('operation').style['font-size'] = "120%"
+        document.getElementById('operation').style['text-shadow'] = "1px 1px 8px red"
+    }
     document.getElementById('path').innerHTML += `](${levels} satisfactions)`
     document.getElementById('tutorial').innerHTML = `<input id="retry" type="button" value="Retry" onclick="location.reload()"></input><p>`
-    if(setHighScore(points)){
-        document.getElementById('time').innerHTML += `<div class="celebrate>(NEW HIGHEST TIME)</div>`
-    }
     if(setHighSatisfactions(levels)){
         document.getElementById('path').innerHTML += `<div class="celebrate">(NEW MOST SATISFACTIONS)</div>`
-        sensational = true
     }
-    if (sensational == true) {
-        message = `▶️I got ${levels} satisfactions in SATISFY. https://bit.ly/-SATISFY-`
-    } else {
-        message = `▶️I got a time of ${points} seconds in SATISFY. https://bit.ly/-SATISFY-`
-    }
+    message = `▶️I got ${levels} satisfactions in SATISFY. https://bit.ly/-SATISFY-`
     let encodedMessage = encodeURIComponent(message)
     document.getElementById('container').innerHTML += `<p /> <input id="copy" type='button' style='size:90%' value='🔗Copy'></input> <span style="width: 40px;"></span> <input id="tweet" type='button' style='size:90%' value='❎Tweet'></input>`
     document.getElementById('copy').addEventListener('click', ()=>{copy(message)})
@@ -481,9 +605,14 @@ function manageGame() {
     else if(levels < 100){rank=5}
     else if(levels >= 100){rank=6}
     var chosenRank = rng(0, rank + 1)
+    if (rng(0, 100 - levels) < 20) {
+        addition = additions[rng(0, additions.length)]
+    } else {
+        addition = ""
+    }
     condition = (conditions[chosenRank])[rng(undefined, conditions[chosenRank].length)]
+    document.getElementById('condition').innerHTML = condition.name + (addition ? ` and ${addition.name}` : "")
     document.getElementById('current').innerHTML = number
-    document.getElementById('condition').innerHTML = condition.name
 }
 
 function testAnswer() {
@@ -496,18 +625,26 @@ function testAnswer() {
     if(newNum < 0) {
         endGame(`N(${newNum}) was negative!`)
     }
-    if(condition.test(newNum)){
+    if(condition.test(newNum) && (!addition || addition.test(newNum))){
         number = newNum
         document.getElementById('path').innerHTML += " > " + number
         document.getElementById('term').value = ""
         levels++
+        //updates time
         if(time<5){time += 10}
         time += 8
+        //highest time
         if(time > points){
             points = time
         }
+        //refocus on input
         document.getElementById('term').focus();
+        //play the pass sound
         passSound.play()
+        //update highscore
+        setHighSatisfactions(levels)
+        document.getElementById('highscore').innerHTML = `Most Satisfactions: ${getHighSatisfactions()}</p>`
+        //continue
         manageGame()
     } else {
         if (time > points) {
@@ -516,8 +653,11 @@ function testAnswer() {
         endGame(`N(${newNum}) did not satisfy the condition!`)
     }
 }
-var hints = ['Adding a negative number is the same as subtracting', 'Giving a correct value of N just as the timer is about to run out gives extra time', 'Keeping N small prevents you from getting overwhelmed', 'The infinity symbol(∞) resembles a lemniscate', 'Don\'t let the timer scare you, 10 seconds are longer than you think they are', 'Read the conditions carefully']
+var hints = ['Adding a negative number is the same as subtracting', 'Giving a correct value of N just as the timer is about to run out gives extra time', 'Keeping N small prevents you from getting overwhelmed', 'Don\'t let the timer scare you, 10 seconds are longer than you think they are', 'Read the conditions carefully']
 
-document.getElementById('current').innerHTML = `<input type="button" value="PLAY" onclick="startGame()"></input>`
+document.getElementById('current').innerHTML = `<input type="button" value="CLICK TO PLAY" onclick="startGame()"></input>`
 document.getElementById('tutorial').innerHTML = document.getElementById('tutorial').innerHTML.replace('(Hint: ???)', `(Hint: ${hints[rng(0, hints.length)]})`)
-document.getElementById('highscore').innerHTML = `Highest Time: ${getHighScore()}<p>Most Satisfactions: ${getHighSatisfactions()}</p>`
+document.getElementById('highscore').innerHTML = `Most Satisfactions: ${getHighSatisfactions()}</p><input id="darkmode" type="button" value="🌙" onclick="switchColours()"></input>`
+if(location.origin != 'https://toxicscientist.github.io'){
+    document.getElementById('footer').innerHTML+= "- You can play this online <a href='https://toxicscientist.github.io/Satisfy/'>here</a>"
+}
