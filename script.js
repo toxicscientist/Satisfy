@@ -452,12 +452,6 @@ var additions = [
         }
     },
     {
-        name: "All digits in N are more than 4",
-        test: (n) => {
-            return n.toString().split('').every((e) => { return +e > 4 })
-        }
-    },
-    {
         name: "N is greater than 10000",
         test: (n) => {
             return (n > 10000)
